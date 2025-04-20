@@ -5,13 +5,13 @@ function Navbar() {
   const [active, setActive] = useState(null);
 
   return (
-    <nav className="bg-white dark:bg-gray-900 fixed top-0 left-0 w-full z-50">
+    <nav className="bg-white dark:bg-gray-900 w-full z-50">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
         <a href="/" className="flex items-center space-x-3">
           <img
             src="/logo.png"
             className="h-12"
-            alt="Flowbite Logo"
+            alt="Question Paper Maker Logo"
           />
           <span className="text-2xl font-semibold whitespace-nowrap dark:text-white">
             Question Paper Maker
