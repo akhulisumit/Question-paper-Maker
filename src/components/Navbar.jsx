@@ -5,8 +5,8 @@ function Navbar() {
   const [active, setActive] = useState(null);
 
   return (
-    <nav className="bg-white dark:bg-gray-900 w-full z-50">
-      <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+    <nav className="bg-white border-b-1 border-gray-700 dark:bg-gray-800 w-full z-50 p-2">
+      <div className="max-w-screen-xl flex items-center justify-between mx-auto p-2">
         <a href="/" className="flex items-center space-x-3">
           <img
             src="/logo.png"

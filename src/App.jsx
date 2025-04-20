@@ -1,19 +1,17 @@
-import reactLogo from './assets/react.svg'
 import './App.css'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import Hero from './components/Hero'
-import Cards from './components/Cards'
+import Home from './Pages/Home'
+import Pricing from './Pages/Pricing'
 
 function App() {
-
   return (
-    <>
+    <div className="flex flex-col min-h-screen overflow-hidden">
       <Navbar />
-      <Hero />
-      <Cards />
+      <Home />
+      <Pricing />
       <Footer />
-    </>
+    </div>
   )
 }
 
