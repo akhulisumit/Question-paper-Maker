@@ -1,13 +1,14 @@
 import React from 'react'
 import Hero from '../components/hero'
-import FormInput from '../components/FormInput'
-function Home() {
+import Cards from '../components/Cards'
+
+function About() {
   return (
     <div >
         <Hero />
-        <FormInput />
+        <Cards />
     </div>
   )
 }
 
-export default Home
+export default About
