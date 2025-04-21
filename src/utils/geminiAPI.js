@@ -1,4 +1,4 @@
-const API_KEY = "AIzaSyC56g30u8bjTqn4cHd5P1eolfe5iwHMc7E";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 export const generateWithGemini = async (prompt) => {
   const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
