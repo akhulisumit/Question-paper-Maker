@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react"; // Optional icon from lucide-react
 import { generatePrompt } from "../utils/promtGenerator";
+import { generateWithGemini } from "../utils/geminiAPI";
 
 function QuestionPaperForm() {
   const [questionGroups, setQuestionGroups] = useState([
@@ -12,9 +13,15 @@ function QuestionPaperForm() {
   const [totalMarks, setTotalMarks] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [topics, setTopics] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [generatedQuestionPaper, setGeneratedQuestionPaper] = useState("");
 
   const addQuestionGroup = () => {
-    setQuestionGroups([...questionGroups, { count: "", marks: "", type: "short", comment: "" }]);
+    setQuestionGroups([
+      ...questionGroups,
+      { count: "", marks: "", type: "short", comment: "" },
+    ]);
   };
 
   const deleteQuestionGroup = (index) => {
@@ -29,9 +36,12 @@ function QuestionPaperForm() {
     setQuestionGroups(updatedGroups);
   };
 
-  const handleSubmit = (e) => {
+  const handleGenerate = async (e) => {
     e.preventDefault();
-  
+    setIsLoading(true);
+    setError(null);
+    setGeneratedQuestionPaper("");
+
     const formData = {
       subject,
       grade,
@@ -40,12 +50,40 @@ function QuestionPaperForm() {
       difficulty,
       topics,
     };
-  
+
+    try {
+      const prompt = generatePrompt(formData, questionGroups);
+      console.log("Sending prompt:", prompt);
+      const response = await generateWithGemini(prompt);
+      
+      if (!response) {
+        throw new Error("No response received from the API");
+      }
+      
+      setGeneratedQuestionPaper(response);
+    } catch (err) {
+      setError(err.message);
+      console.error("Generation failed:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const formData = {
+      subject,
+      grade,
+      totalQuestions,
+      totalMarks,
+      difficulty,
+      topics,
+    };
+
     const prompt = generatePrompt(formData, questionGroups);
     console.log("Generated Prompt:\n", prompt);
-  
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -57,7 +95,9 @@ function QuestionPaperForm() {
         {/* Static Fields */}
         <div className="grid md:grid-cols-2 gap-10 mb-12">
           <div>
-            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Subject</label>
+            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+              Subject
+            </label>
             <input
               type="text"
               value={subject}
@@ -67,7 +107,9 @@ function QuestionPaperForm() {
             />
           </div>
           <div>
-            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Grade/Class</label>
+            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+              Grade/Class
+            </label>
             <input
               type="text"
               value={grade}
@@ -77,7 +119,9 @@ function QuestionPaperForm() {
             />
           </div>
           <div>
-            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Total Questions</label>
+            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+              Total Questions
+            </label>
             <input
               type="number"
               value={totalQuestions}
@@ -87,7 +131,9 @@ function QuestionPaperForm() {
             />
           </div>
           <div>
-            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Total Marks</label>
+            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+              Total Marks
+            </label>
             <input
               type="number"
               value={totalMarks}
@@ -97,8 +143,10 @@ function QuestionPaperForm() {
             />
           </div>
           <div>
-            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Overall Difficulty</label>
-            <select 
+            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+              Overall Difficulty
+            </label>
+            <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
               className="w-full p-4 border border-gray-300 rounded-lg dark:bg-gray-700 dark:text-white"
@@ -110,7 +158,9 @@ function QuestionPaperForm() {
             </select>
           </div>
           <div>
-            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Topics</label>
+            <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+              Topics
+            </label>
             <input
               type="text"
               value={topics}
@@ -124,7 +174,9 @@ function QuestionPaperForm() {
         <hr className="my-8 border-gray-300 dark:border-gray-600" />
 
         {/* Question Groups */}
-        <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">Question Groups</h3>
+        <h3 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-white">
+          Question Groups
+        </h3>
 
         {questionGroups.map((group, index) => (
           <div
@@ -133,7 +185,9 @@ function QuestionPaperForm() {
           >
             <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">No. of Questions</label>
+                <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+                  No. of Questions
+                </label>
                 <input
                   type="number"
                   value={group.count}
@@ -142,7 +196,9 @@ function QuestionPaperForm() {
                 />
               </div>
               <div>
-                <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Marks per Question</label>
+                <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+                  Marks per Question
+                </label>
                 <input
                   type="number"
                   value={group.marks}
@@ -151,7 +207,9 @@ function QuestionPaperForm() {
                 />
               </div>
               <div>
-                <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Type</label>
+                <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+                  Type
+                </label>
                 <select
                   value={group.type}
                   onChange={(e) => updateGroup(index, "type", e.target.value)}
@@ -166,7 +224,9 @@ function QuestionPaperForm() {
 
             {/* Additional Comments */}
             <div>
-              <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">Additional Comments</label>
+              <label className="block mb-2 text-lg font-medium text-gray-900 dark:text-white">
+                Additional Comments
+              </label>
               <textarea
                 value={group.comment}
                 onChange={(e) => updateGroup(index, "comment", e.target.value)}
@@ -201,12 +261,31 @@ function QuestionPaperForm() {
 
         <div className="text-center">
           <button
-            type="submit"
-            className="bg-green-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition duration-300"
-            onClick={handleSubmit}
+            onClick={handleGenerate}
+            disabled={isLoading}
+            className={`mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Generate Question Paper
+            {isLoading ? "Generating..." : "Generate Question Paper"}
           </button>
+
+          {error && (
+            <div className="mt-4 text-red-600 bg-red-100 p-3 rounded">
+              {error}
+            </div>
+          )}
+
+          {generatedQuestionPaper && (
+            <div className="mt-6 bg-gray-100 p-4 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-2">
+                Generated Question Paper
+              </h2>
+              <pre className="whitespace-pre-wrap text-left bg-white p-4 rounded border">
+                {generatedQuestionPaper}
+              </pre>
+            </div>
+          )}
         </div>
       </div>
     </div>
